@@ -267,7 +267,7 @@ def login():
     us = inputD('[?] Email/HP')
     pa = inputD('[?] Kata Sandi')
     cetak('!h[*] Sedang Login....')
-    buka('https://m.facebook.com')
+    response = buka('https://id-id.facebook.com')
     br.select_form(nr=0)
 
     # Debugging: Print all form controls to find the correct control names
@@ -278,25 +278,29 @@ def login():
             hidden_controls[control.name] = control.value
 
     try:
-        br.form['email'] = us
+        br.form['email'] = us  # Nama kontrol untuk email
     except mechanize._form_controls.ControlNotFoundError:
         cetak("Kontrol 'email' tidak ditemukan. Silakan periksa struktur form.")
         keluar()
-    
+
     try:
-        br.form['pass'] = pa
+        br.form['pass'] = pa  # Nama kontrol untuk password
     except mechanize._form_controls.ControlNotFoundError:
         cetak("Kontrol 'pass' tidak ditemukan. Silakan periksa struktur form.")
         keluar()
-    
+
     # Tambahkan nilai kontrol tersembunyi ke dalam form
     for name, value in hidden_controls.items():
         br.form[name] = value
-    
+
+    # Debugging: Cetak semua kontrol dan nilainya setelah pengisian
+    for control in br.form.controls:
+        print(f"Control name: {control.name}, value: {control.value}")
+
     br.submit()
     url = br.geturl()
     if 'save-device' in url or 'm_sess' in url:
-        buka('https://mobile.facebook.com/home.php')
+        buka('https://id-id.facebook.com/home.php')
         nama = br.find_link(url_regex='logout.php').text
         nama = re.findall(r'\((.*a?)\)', nama)[0]
         cetak('!h[*] Selamat datang !k%s' % nama)
@@ -340,11 +344,11 @@ def idteman():
         if log == 0:
             keluar()
     cetak('!h[*] Sedang mengumpulkan id teman...')
-    buka('https://m.facebook.com/friends/center/mbasic/?fb_ref=bm&sr=1&ref_component=mbasic_bookmark&ref_page=XMenuController')
+    buka('https://id-id.facebook.com/friends/center/mbasic/?fb_ref=bm&sr=1&ref_component=mbasic_bookmark&ref_page=XMenuController')
     jumlah = br.find_link(url_regex='/friends/center/friends/').text
     jumlah = re.findall(r'\((.*a?)\)', jumlah)[0]
     cetak('!h[*] Mengambil !p%s !hid teman' % jumlah)
-    saring_id_teman(buka('https://m.facebook.com/friends/center/friends/?fb_ref=fbm&ref_component=mbasic_bookmark&ref_page=XMenuController'))
+    saring_id_teman(buka('https://id-id.facebook.com/friends/center/friends/?fb_ref=fbm&ref_component=mbasic_bookmark&ref_page=XMenuController'))
     try:
         next = br.find_link(url_regex='friends_center_main').url
     except:
