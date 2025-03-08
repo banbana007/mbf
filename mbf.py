@@ -237,22 +237,18 @@ def buka(d):
         keluar()
 
 def login():
-    global log
-    us = inputD('[?] Email/HP')
-    pa = inputD('[?] Kata Sandi')
-    cetak('!h[*] Sedang Login....')
+    # URL action yang digunakan dalam request POST
+    action_url = '/intl/save_locale/?loc=en_GB&href=https%3A%2F%2Fm.facebook.com%2F&index=2&ls_ref=m_basic_locale_footer&ref_component=mbasic_footer&ref_page=%2F&refid=8'
+    
+    # Pastikan URL memiliki schema yang benar
+    if not action_url.startswith('http://') and not action_url.startswith('https://'):
+        action_url = 'https://m.facebook.com' + action_url
 
-    login_page = buka('https://m.facebook.com')
-    soup = BeautifulSoup(login_page, 'html.parser')
-    form = soup.find('form')
-    action_url = form['action']
+    login_data = {
+        'email': 'your_email',
+        'pass': 'your_password'
+    }
 
-    login_data = {}
-    for input_tag in form.find_all('input'):
-        if input_tag.get('name') not in ('email', 'pass'):
-            login_data[input_tag.get('name')] = input_tag.get('value', '')
-
-    login_data.update({'email': us, 'pass': pa})
     response = session.post(action_url, data=login_data, headers={'User-Agent': 'Mozilla/5.0'})
 
     if 'save-device' in response.url or 'm_sess' in response.url:
