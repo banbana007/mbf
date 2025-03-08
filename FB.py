@@ -269,6 +269,11 @@ def login():
     cetak('!h[*] Sedang Login....')
     buka('https://m.facebook.com')
     br.select_form(nr=0)
+
+    # Debugging: Print all form controls
+    for control in br.form.controls:
+        print(f"Control name: {control.name}")
+
     try:
         br.form['email'] = us
     except mechanize._form_controls.ControlNotFoundError:
