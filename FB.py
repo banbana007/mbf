@@ -59,28 +59,31 @@ def login():
         print(f"Control name: {control.name}")
         if control.type == "hidden":
             hidden_controls[control.name] = control.value
-
+    
     # Isi kontrol form
     try:
         br.form['email'] = us  # Nama kontrol untuk email
     except mechanize._form_controls.ControlNotFoundError:
         cetak("Kontrol 'email' tidak ditemukan. Silakan periksa struktur form.")
         sys.exit()
-
+    
     try:
         br.form['pass'] = pa  # Nama kontrol untuk password
     except mechanize._form_controls.ControlNotFoundError:
         cetak("Kontrol 'pass' tidak ditemukan. Silakan periksa struktur form.")
         sys.exit()
-
+    
     # Tambahkan nilai kontrol tersembunyi ke dalam form
     for name, value in hidden_controls.items():
-        br.form[name] = value
+        try:
+            br.form[name] = value
+        except AttributeError:
+            print(f"Skipping read-only control '{name}'")
 
     # Debugging: Cetak semua kontrol dan nilainya setelah pengisian
     for control in br.form.controls:
         print(f"Control name: {control.name}, value: {control.value}")
-
+    
     # Submit form dan cek URL
     response = br.submit()
     url = br.geturl()
