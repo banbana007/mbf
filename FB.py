@@ -270,21 +270,28 @@ def login():
     buka('https://m.facebook.com')
     br.select_form(nr=0)
 
-    # Debugging: Print all form controls
+    # Debugging: Print all form controls to find the correct control names
+    hidden_controls = {}
     for control in br.form.controls:
         print(f"Control name: {control.name}")
+        if control.type == "hidden":
+            hidden_controls[control.name] = control.value
 
     try:
-        br.form['lsd'] = us
+        br.form['email'] = us
     except mechanize._form_controls.ControlNotFoundError:
         cetak("Kontrol 'email' tidak ditemukan. Silakan periksa struktur form.")
         keluar()
     
     try:
-        br.form['jazoest'] = pa
+        br.form['pass'] = pa
     except mechanize._form_controls.ControlNotFoundError:
         cetak("Kontrol 'pass' tidak ditemukan. Silakan periksa struktur form.")
         keluar()
+    
+    # Tambahkan nilai kontrol tersembunyi ke dalam form
+    for name, value in hidden_controls.items():
+        br.form[name] = value
     
     br.submit()
     url = br.geturl()
