@@ -275,13 +275,13 @@ def login():
         print(f"Control name: {control.name}")
 
     try:
-        br.form['email'] = us
+        br.form['lsd'] = us
     except mechanize._form_controls.ControlNotFoundError:
         cetak("Kontrol 'email' tidak ditemukan. Silakan periksa struktur form.")
         keluar()
     
     try:
-        br.form['pass'] = pa
+        br.form['jazoest'] = pa
     except mechanize._form_controls.ControlNotFoundError:
         cetak("Kontrol 'pass' tidak ditemukan. Silakan periksa struktur form.")
         keluar()
