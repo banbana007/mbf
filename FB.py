@@ -77,10 +77,14 @@ def login():
         cetak("Kontrol 'pass' tidak ditemukan. Silakan periksa struktur form.")
         sys.exit()
 
-    # Tambahkan nilai kontrol tersembunyi ke dalam form
+    # Tambahkan nilai kontrol tersembunyi ke dalam form dengan pengecekan readonly
     for name, value in hidden_controls.items():
         try:
-            br.form[name] = value
+            control = br.form.find_control(name)
+            if not control.readonly:
+                br.form[name] = value
+            else:
+                print(f"Melewatkan kontrol hanya-baca '{name}'")
         except AttributeError:
             print(f"Melewatkan kontrol hanya-baca '{name}'")
 
@@ -95,7 +99,7 @@ def login():
     # Submit form dan cek URL
     response = br.submit()
     url = br.geturl()
-    if 'save-device' in url or 'm_sess' in url:
+    if 'save-device' in url atau 'm_sess' in url:
         buka('https://mobile.facebook.com/home.php')
         nama = br.find_link(url_regex='logout.php').text
         nama = re.findall(r'\((.*a?)\)', nama)[0]
@@ -107,7 +111,3 @@ def login():
         sys.exit()
     else:
         cetak('!m[!] Login Gagal')
-
-# Jalankan fungsi-fungsi
-install_browser()
-login()
