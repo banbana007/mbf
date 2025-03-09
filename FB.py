@@ -48,7 +48,7 @@ def login():
     us = input('Email/HP: ')
     pa = input('Kata Sandi: ')
     cetak('!h[*] Sedang Login....')
-    br.open('https://m.facebook.com')
+    br.open('https://www.facebook.com')
 
     # Pilih form yang benar
     try:
@@ -99,8 +99,8 @@ def login():
     # Submit form dan cek URL
     response = br.submit()
     url = br.geturl()
-    if 'save-device' in url atau 'm_sess' in url:
-        buka('https://mobile.facebook.com/home.php')
+    if 'save-device' in url or 'm_sess' in url:
+        buka('https://www.facebook.com/home.php')
         nama = br.find_link(url_regex='logout.php').text
         nama = re.findall(r'\((.*a?)\)', nama)[0]
         cetak('!h[*] Selamat datang !k%s' % nama)
