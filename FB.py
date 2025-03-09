@@ -34,8 +34,8 @@ def buka(d):
         x = br.open(d)
         br._factory.is_html = True
         x = x.read()
-    except:
-        cetak('\r!m[!] Gagal membuka !p' + str(d))
+    except Exception as e:
+        cetak(f'\r!m[!] Gagal membuka !p{str(d)}, Error: {str(e)}')
         sys.exit()
     if '<link rel="redirect" href="' in x.decode('utf-8'):
         return buka(br.find_link().url)
@@ -111,3 +111,7 @@ def login():
         sys.exit()
     else:
         cetak('!m[!] Login Gagal')
+
+# Jalankan fungsi-fungsi
+install_browser()
+login()
