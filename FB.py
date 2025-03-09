@@ -26,7 +26,7 @@ def install_browser():
     br.set_cookiejar(cookielib.LWPCookieJar())
     br.set_handle_redirect(True)
     br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
-    br.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3')]
+    br.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, seperti Gecko) Chrome/58.0.3029.110 Safari/537.3')]
 
 # Fungsi untuk membuka URL
 def buka(d):
@@ -43,60 +43,54 @@ def buka(d):
         return x.decode('utf-8')
 
 # Fungsi untuk login ke Facebook
-def cetak(text):
-    print(text)
+def login():
+    global log
+    us = input('Email/HP: ')
+    pa = input('Kata Sandi: ')
+    cetak('!h[*] Sedang Login....')
+    br.open('https://m.facebook.com')
 
-# Inisialisasi browser
-br = mechanize.Browser()
-br.set_handle_robots(False)
-
-global log
-us = input('Email/HP: ')
-pa = input('Kata Sandi: ')
-cetak('!h[*] Sedang Login....')
-br.open('https://m.facebook.com')
-
-# Pilih form yang benar
-try:
-    br.select_form(nr=0)
-except mechanize._mechanize.FormNotFoundError:
-    cetak("Form tidak ditemukan. Silakan periksa struktur halaman.")
-    sys.exit()
-
-# Debugging: Cetak semua kontrol form
-hidden_controls = {}
-for control in br.form.controls:
-    print(f"Nama kontrol: {control.name}")
-    if control.type == "hidden":
-        hidden_controls[control.name] = control.value
-
-# Isi kontrol form
-try:
-    br.form['email'] = us  # Nama kontrol untuk email
-except mechanize._form_controls.ControlNotFoundError:
-    cetak("Kontrol 'email' tidak ditemukan. Silakan periksa struktur form.")
-    sys.exit()
-
-try:
-    br.form['pass'] = pa  # Nama kontrol untuk password
-except mechanize._form_controls.ControlNotFoundError:
-    cetak("Kontrol 'pass' tidak ditemukan. Silakan periksa struktur form.")
-    sys.exit()
-
-# Tambahkan nilai kontrol tersembunyi ke dalam form
-for name, value in hidden_controls.items():
+    # Pilih form yang benar
     try:
-        br.form[name] = value
-    except AttributeError:
-        print(f"Melewatkan kontrol hanya-baca '{name}'")
+        br.select_form(nr=0)
+    except mechanize._mechanize.FormNotFoundError:
+        cetak("Form tidak ditemukan. Silakan periksa struktur halaman.")
+        sys.exit()
 
-# Debugging: Cetak semua kontrol dan nilainya setelah pengisian
-for control in br.form.controls:
-    print(f"Nama kontrol: {control.name}, nilai: {control.value}")
+    # Debugging: Cetak semua kontrol form
+    hidden_controls = {}
+    for control in br.form.controls:
+        print(f"Nama kontrol: {control.name}")
+        if control.type == "hidden":
+            hidden_controls[control.name] = control.value
 
-# Kirim form
-response = br.submit()
-cetak("Percobaan login selesai.")
+    # Isi kontrol form
+    try:
+        br.form['email'] = us  # Nama kontrol untuk email
+    except mechanize._form_controls.ControlNotFoundError:
+        cetak("Kontrol 'email' tidak ditemukan. Silakan periksa struktur form.")
+        sys.exit()
+
+    try:
+        br.form['pass'] = pa  # Nama kontrol untuk password
+    except mechanize._form_controls.ControlNotFoundError:
+        cetak("Kontrol 'pass' tidak ditemukan. Silakan periksa struktur form.")
+        sys.exit()
+
+    # Tambahkan nilai kontrol tersembunyi ke dalam form
+    for name, value in hidden_controls.items():
+        try:
+            br.form[name] = value
+        except AttributeError:
+            print(f"Melewatkan kontrol hanya-baca '{name}'")
+
+    # Debugging: Cetak semua kontrol dan nilainya setelah pengisian
+    for control in br.form.controls:
+        print(f"Nama kontrol: {control.name}, nilai: {control.value}")
+
+    # Kirim form
+    response = br.submit()
+    cetak("Percobaan login selesai.")
     
     # Submit form dan cek URL
     response = br.submit()
